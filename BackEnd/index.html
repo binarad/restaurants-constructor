@@ -1,0 +1,37 @@
+<html>
+	<head> </head>
+	<body>
+		<script>
+			async function printAll() {
+				const data = await fetch('http://localhost:1337/goods/print')
+				const jsonData = await data.json()
+				alert(JSON.stringify(jsonData))
+			}
+
+			async function addGood() {
+				const data = await fetch(
+					'http://localhost:1337/goods/add?id=0&name=Beer&description=beer&price=66&imgUrl=dd'
+				)
+				const jsonData = await data.json()
+				alert(JSON.stringify(jsonData))
+			}
+
+			async function editGood() {
+				const data = await fetch(
+					'http://localhost:1337/goods/edit?id=1&name=Beer2&description=beer2&price=88&imgUrl=new'
+				)
+				const jsonData = await data.json()
+				alert(JSON.stringify(jsonData))
+			}
+
+			async function deleteGood() {
+				const data = await fetch('http://localhost:1337/goods/delete?id=1')
+				const jsonData = await data.json()
+				alert(JSON.stringify(jsonData))
+			}
+
+			addGood()
+			printAll()
+		</script>
+	</body>
+</html>
