@@ -12,5 +12,8 @@
 	"dependencies": {
 		"sqlite3": "^5.1.7",
 		"tsx": "^4.19.1"
+	},
+	"devDependencies": {
+		"@types/node": "^22.7.7"
 	}
 }

@@ -15,6 +15,10 @@ const router = createBrowserRouter([
 		path: '/admin/add_restaurants',
 		element: <AddRestaurants />,
 	},
+	{
+		path: '/homepage',
+		element: <App />,
+	},
 ])
 
 createRoot(document.getElementById('root')!).render(
