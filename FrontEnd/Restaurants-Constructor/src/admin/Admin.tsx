@@ -1,6 +1,7 @@
-import React from 'react'
 import { CSSProperties } from 'react'
-
+import AddedRestaurant from './components/AddedRestaurant'
+import Button from '@mui/material/Button'
+import { DeleteForever } from '@mui/icons-material'
 export default function Admin() {
 	const AdminPanelStlyes: CSSProperties = {
 		width: '1200px',
@@ -8,8 +9,8 @@ export default function Admin() {
 		backgroundColor: '#E1E1E1',
 		border: '1px solid #999999',
 		borderRadius: '15px',
-		// justifyContent: 'center',
-		// alignItems: 'center',
+		justifyContent: 'center',
+		alignItems: 'center',
 		display: 'flex',
 		flexDirection: 'column',
 	}
@@ -17,29 +18,23 @@ export default function Admin() {
 		<div className='flex justify-start items-center h-full flex-col p-5'>
 			<h3 className='text-3xl font-bold m-3'>Admin Panel</h3>
 			<div style={AdminPanelStlyes}>
+				<AddedRestaurant />
 				<div
-					className='bg-stone-400 w-[800px] h-[500px] self-center mt-2 flex-row flex justify-center rounded-[13px]'
-					id='added-restaurants-list'
+					id='buttons'
+					className='flex w-full mt-auto  mb-1 mr-1 items-center justify-end'
 				>
-					<div
-						className='flex w-[500px] h-[150px] bg-gray-700 m-2 p-2 '
-						id='added-restaurant'
+					<Button variant='contained' className='w-[100px] h-[50px] '>
+						ADD
+					</Button>
+					<Button
+						variant='outlined'
+						sx={{
+							margin: '5px',
+						}}
+						className='w-[175px] h-[50px] '
 					>
-						<div id='text-part' className='w-[350px] '>
-							<h1>Title</h1>
-							<hr />
-							<p>Desc</p>
-						</div>
-						<img src='#' className='w-[150px]' />
-					</div>
-				</div>
-				<div className='flex w-[400px] relative top-[435px] left-[825px]'>
-					<button className='w-[175px] h-[50px] bg-blue-400 rounded-lg flex justify-center items-center font-medium text-md m-[5px] hover:bg-blue-500'>
-						ADD RESTAURANT
-					</button>
-					<button className='w-[175px] h-[50px] bg-red-400 rounded-lg flex justify-center items-center text-md font-medium m-[5px] hover:bg-red-500'>
-						DELETE RESTAURANT
-					</button>
+						<DeleteForever /> DELETE
+					</Button>
 				</div>
 			</div>
 		</div>
