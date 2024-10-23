@@ -22,7 +22,9 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /goods/create", createGood)
-	mux.HandleFunc("GET /goods/read", readGood)
+	mux.HandleFunc("GET /goods/read/{id}", readGood)
+	mux.HandleFunc("GET /goods/update/{id}", updateGood)
+	mux.HandleFunc("GET /goods/delete/{id}", deleteGood)
 	mux.HandleFunc("GET /{shop}", showShop)
 	log.Fatal(http.ListenAndServe(":1337", mux))
 }
@@ -43,7 +45,9 @@ func createGood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := prepareResponse(&w, result)
+	bytes, err := prepareResponse(&w, struct {
+		Id int64 `json:"id"`
+	}{Id: result})
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		log.Println(err)
@@ -77,6 +81,12 @@ func readGood(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+}
+
+func updateGood(w http.ResponseWriter, r *http.Request) {
+}
+
+func deleteGood(w http.ResponseWriter, r *http.Request) {
 }
 
 func showShop(w http.ResponseWriter, r *http.Request) {

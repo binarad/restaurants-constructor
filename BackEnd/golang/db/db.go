@@ -60,15 +60,20 @@ func PrepareDB(dbfile string) (RestaurantsDB, error) {
 	return RestaurantsDB{sqldb}, nil
 }
 
-func (db *RestaurantsDB) CreateGood(good Good) (sql.Result, error) {
+func (db *RestaurantsDB) CreateGood(good Good) (int64, error) {
 	fmt.Println(good)
-	return db.Exec(`
+	res, err := db.Exec(`
 insert into Goods(
     name, description, price, imgUrl, shopId
 ) values (
     ?, ?, ?, ?, ?
 );
 `, good.Name, good.Description, good.Price, good.ImgURL, good.ShopID)
+
+	if err != nil {
+		return 0, err
+	}
+	return res.LastInsertId()
 }
 
 func (db *RestaurantsDB) ReadAllGoods() ([]Good, error) {
