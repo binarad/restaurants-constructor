@@ -43,19 +43,19 @@ func createGood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    bytes, err := prepareResponse(&w, result)
-    if err != nil {
+	bytes, err := prepareResponse(&w, result)
+	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		log.Println(err)
 		return
-    }
+	}
 
-    w.WriteHeader(http.StatusCreated)
-    if _, err := w.Write(bytes); err != nil {
+	w.WriteHeader(http.StatusCreated)
+	if _, err := w.Write(bytes); err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		log.Println(err)
 		return
-    }
+	}
 }
 
 func readGood(w http.ResponseWriter, r *http.Request) {
@@ -65,18 +65,18 @@ func readGood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    bytes, err := prepareResponse(&w, result)
-    if err != nil {
+	bytes, err := prepareResponse(&w, result)
+	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		log.Println(err)
 		return
-    }
+	}
 
-    if _, err := w.Write(bytes); err != nil {
+	if _, err := w.Write(bytes); err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		log.Println(err)
 		return
-    }
+	}
 }
 
 func showShop(w http.ResponseWriter, r *http.Request) {
@@ -107,8 +107,8 @@ func prepareResponse(w *http.ResponseWriter, data any) ([]byte, error) {
 		return nil, err
 	}
 
-    (*w).Header().Set("Content-Type", "application/json")
-    (*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Content-Type", "application/json")
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 
-    return jr, nil
+	return jr, nil
 }
