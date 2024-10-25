@@ -19,20 +19,19 @@ const AdminPanelStlyes: CSSProperties = {
 
 export default function Admin(props: AddedRestaurantType) {
 	// const { title, description, imgUrl } = props
-
 	const [title, setTitle] = useState<string>('')
 	const [description, setDescription] = useState<string>('')
 	const [imgUrl, setImgUrl] = useState<string>('')
 
-	const fetchData = async () => {
-		const data = await fetch('http://localhost:1337/goods/read{id}')
-		const jsonData = await data.json()
-		console.log(jsonData)
-		setTitle(jsonData[2].name)
-		setDescription(jsonData[2].description)
-		setImgUrl(jsonData[2].imgUrl)
-	}
-	fetchData()
+	// const fetchData = async () => {
+	// 	const data = await fetch('http://localhost:1337/goods/read{id}')
+	// 	const jsonData = await data.json()
+	// 	console.log(jsonData)
+	// 	setTitle(jsonData[2].name)
+	// 	setDescription(jsonData[2].description)
+	// 	setImgUrl(jsonData[2].imgUrl)
+	// }
+	// fetchData()
 	return (
 		<div className='flex justify-start items-center h-full flex-col p-5'>
 			<h3 className='text-3xl font-bold m-3'>Admin Panel</h3>
