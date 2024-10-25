@@ -2,8 +2,8 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
+	"strings"
 )
 
 const (
@@ -61,13 +61,12 @@ func PrepareDB(dbfile string) (RestaurantsDB, error) {
 }
 
 func (db *RestaurantsDB) CreateGood(good Good) (int64, error) {
-	fmt.Println(good)
 	res, err := db.Exec(`
 insert into Goods(
     name, description, price, imgUrl, shopId
 ) values (
     ?, ?, ?, ?, ?
-);
+)
 `, good.Name, good.Description, good.Price, good.ImgURL, good.ShopID)
 
 	if err != nil {
@@ -76,8 +75,18 @@ insert into Goods(
 	return res.LastInsertId()
 }
 
+func (db *RestaurantsDB) ReadGood(id int64) (Good, error) {
+	row := db.QueryRow(`select * from Goods where id = ?`, id)
+	var good Good
+	err := row.Scan(&good.Id, &good.Name, &good.Description, &good.Price, &good.ImgURL, &good.ShopID)
+	if err != nil {
+		return Good{}, err
+	}
+	return good, nil
+}
+
 func (db *RestaurantsDB) ReadAllGoods() ([]Good, error) {
-	rows, err := db.Query(`select * from Goods;`)
+	rows, err := db.Query(`select * from Goods`)
 	if err != nil {
 		return nil, err
 	}
@@ -97,4 +106,39 @@ func (db *RestaurantsDB) ReadAllGoods() ([]Good, error) {
 		return nil, err
 	}
 	return result, nil
+}
+
+func (db *RestaurantsDB) UpdateGood(id int64, values map[string]string) (Good, error) {
+	query := `update Goods set `
+	cols := [5]string{"name", "description", "price", "imgUrl", "shopId"}
+	parts := make([]string, 0, 5)
+	args := make([]any, 0, 5)
+
+	for _, col := range cols {
+		if value, ok := values[col]; ok {
+			parts = append(parts, col+` = ?`)
+			args = append(args, value)
+		}
+	}
+
+	query += strings.Join(parts, ",") + ` where id = ? returning *`
+	args = append(args, id)
+	row := db.QueryRow(query, args...)
+
+	var updatedGood Good
+	err := row.Scan(&updatedGood.Id, &updatedGood.Name, &updatedGood.Description, &updatedGood.Price, &updatedGood.ImgURL, &updatedGood.ShopID)
+	if err != nil {
+		return Good{}, err
+	}
+	return updatedGood, nil
+}
+
+func (db *RestaurantsDB) DeleteGood(id int64) (Good, error) {
+	row := db.QueryRow(`delete from Goods where id = ? returning *`, id)
+	var good Good
+	err := row.Scan(&good.Id, &good.Name, &good.Description, &good.Price, &good.ImgURL, &good.ShopID)
+	if err != nil {
+		return Good{}, err
+	}
+	return good, nil
 }
