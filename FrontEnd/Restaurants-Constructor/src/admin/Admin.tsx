@@ -25,7 +25,7 @@ export default function Admin(props: AddedRestaurantType) {
 	const [imgUrl, setImgUrl] = useState<string>('')
 
 	const fetchData = async () => {
-		const data = await fetch('http://localhost:1337/goods/print')
+		const data = await fetch('http://localhost:1337/goods/read{id}')
 		const jsonData = await data.json()
 		console.log(jsonData)
 		setTitle(jsonData[2].name)
@@ -46,16 +46,18 @@ export default function Admin(props: AddedRestaurantType) {
 					id='buttons'
 					className='flex w-full mt-auto  mb-1 mr-1 items-center justify-end'
 				>
-					<Button
-						variant='contained'
-						className='w-[100px] h-[45px] '
-						sx={{
-							margin: '5px',
-							fontSize: '18px',
-						}}
-					>
-						<Link to='/admin/add_restaurants'>ADD</Link>
-					</Button>
+					<Link to='/admin/add_restaurants'>
+						<Button
+							variant='contained'
+							className='w-[100px] h-[45px] '
+							sx={{
+								margin: '5px',
+								fontSize: '18px',
+							}}
+						>
+							ADD
+						</Button>
+					</Link>
 					<Button
 						variant='outlined'
 						sx={{
