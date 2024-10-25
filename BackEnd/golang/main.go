@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 
 	"rcb/db"
@@ -21,94 +21,190 @@ func main() {
 	defer database.Close()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /goods/create", createGood)
-	mux.HandleFunc("GET /goods/read/{id}", readGood)
-	mux.HandleFunc("GET /goods/update/{id}", updateGood)
-	mux.HandleFunc("GET /goods/delete/{id}", deleteGood)
-	mux.HandleFunc("GET /{shop}", showShop)
+	mux.HandleFunc("POST /goods", createGoodHandler)
+	mux.HandleFunc("GET /goods", readAllGoodsHandler)
+	mux.HandleFunc("GET /goods/{id}", readGoodHandler)
+	mux.HandleFunc("PATCH /goods/{id}", updateGoodHandler)
+	mux.HandleFunc("DELETE /goods/{id}", deleteGoodHandler)
+
+	mux.HandleFunc("GET /{shop}", readShop)
+
+	fmt.Println("Starting the server...")
 	log.Fatal(http.ListenAndServe(":1337", mux))
 }
 
-func createGood(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Could not parse the form", http.StatusBadRequest)
-		log.Println(err)
-		return
-	}
-	good := parseGood(r.Form)
-	log.Println(good)
+func createGoodHandler(w http.ResponseWriter, r *http.Request) {
+	var newGood db.Good
+	json.NewDecoder(r.Body).Decode(&newGood)
+	log.Println(newGood)
 
-	result, err := database.CreateGood(good)
+	result, err := database.CreateGood(newGood)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, "Could not create good", 500)
 		log.Println(err)
 		return
 	}
 
-	bytes, err := prepareResponse(&w, struct {
+	newGoodID, err := prepareResponse(&w, struct {
 		Id int64 `json:"id"`
 	}{Id: result})
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, "Could not respond with the new good ID", 500)
 		log.Println(err)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	if _, err := w.Write(bytes); err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	if _, err = w.Write(newGoodID); err != nil {
 		log.Println(err)
 		return
 	}
+
+	log.Println(fmt.Sprintf("Created a good with ID: %d", newGoodID))
 }
 
-func readGood(w http.ResponseWriter, r *http.Request) {
-	result, err := database.ReadAllGoods()
+func readAllGoodsHandler(w http.ResponseWriter, r *http.Request) {
+	goods, err := database.ReadAllGoods()
 	if err != nil {
+		http.Error(w, "Could not list all goods", 500)
 		log.Println(err)
 		return
 	}
 
-	bytes, err := prepareResponse(&w, result)
+	goodsJSON, err := prepareResponse(&w, goods)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, "Could not marshal JSON of the goods", 500)
 		log.Println(err)
 		return
 	}
 
-	if _, err := w.Write(bytes); err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	w.WriteHeader(http.StatusOK)
+	if _, err = w.Write(goodsJSON); err != nil {
 		log.Println(err)
 		return
 	}
+
+	log.Println("Listed all goods")
 }
 
-func updateGood(w http.ResponseWriter, r *http.Request) {
+func readGoodHandler(w http.ResponseWriter, r *http.Request) {
+	var good db.Good
+	var err error
+
+	goodID := r.PathValue("id")
+	goodIDint, err := strconv.ParseInt(goodID, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid good ID", 400)
+		log.Println(err)
+		return
+	}
+
+	good, err = database.ReadGood(goodIDint)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Could not find a good with ID: %d", goodIDint), 404)
+		log.Println(err)
+		return
+	}
+
+	goodJSON, err := prepareResponse(&w, good)
+	if err != nil {
+		http.Error(w, "Could not marshal JSON of the sought good", 500)
+		log.Println(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if _, err = w.Write(goodJSON); err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println(fmt.Sprintf("Found and listed a good with ID: %d", goodIDint))
 }
 
-func deleteGood(w http.ResponseWriter, r *http.Request) {
+func updateGoodHandler(w http.ResponseWriter, r *http.Request) {
+	var updateValues = map[string]string{}
+	var updatedGood db.Good
+	json.NewDecoder(r.Body).Decode(&updateValues)
+	log.Println(updateValues)
+
+	goodID := r.PathValue("id")
+	if goodID == "" {
+		http.Error(w, "You need to provide an ID of some good", 400)
+		return
+	}
+
+	goodIDint, err := strconv.ParseInt(goodID, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid good ID", 400)
+		log.Println(err)
+		return
+	}
+
+	updatedGood, err = database.UpdateGood(goodIDint, updateValues)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Could not find a good with ID: %d", goodIDint), 404)
+		log.Println(err)
+		return
+	}
+
+	updatedGoodJSON, err := prepareResponse(&w, updatedGood)
+	if err != nil {
+		http.Error(w, "Could not respond with the updated good", 500)
+		log.Println(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if _, err = w.Write(updatedGoodJSON); err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println(fmt.Sprintf("Patched a good with ID: %d", goodIDint))
 }
 
-func showShop(w http.ResponseWriter, r *http.Request) {
+func deleteGoodHandler(w http.ResponseWriter, r *http.Request) {
+	goodID := r.PathValue("id")
+	if goodID == "" {
+		http.Error(w, "You need to provide an ID of some good", 400)
+		return
+	}
+
+	goodIDint, err := strconv.ParseInt(goodID, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid good ID", 400)
+		log.Println(err)
+		return
+	}
+
+	deletedGood, err := database.DeleteGood(goodIDint)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Could not find a good with ID: %d", goodIDint), 404)
+		log.Println(err)
+		return
+	}
+
+	deletedGoodJSON, err := prepareResponse(&w, deletedGood)
+	if err != nil {
+		http.Error(w, "Could not respond with the deleted good", 500)
+		log.Println(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if _, err = w.Write(deletedGoodJSON); err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println(fmt.Sprintf("Deleted a good with ID: %d", goodIDint))
+}
+
+func readShop(w http.ResponseWriter, r *http.Request) {
 	shopSymbol := r.PathValue("shop")
 	log.Println(shopSymbol)
 	// if it's a valid id for shop or name of the shop, proceed accordingly
-}
-
-func parseGood(v url.Values) db.Good {
-	id, _ := strconv.Atoi(v.Get("id"))
-	price, _ := strconv.Atoi(v.Get("price"))
-	shopId, _ := strconv.Atoi(v.Get("shopId"))
-
-	good := db.Good{
-		Id:          id,
-		Name:        v.Get("name"),
-		Description: v.Get("description"),
-		Price:       price,
-		ImgURL:      v.Get("imgUrl"),
-		ShopID:      shopId,
-	}
-	return good
 }
 
 func prepareResponse(w *http.ResponseWriter, data any) ([]byte, error) {
