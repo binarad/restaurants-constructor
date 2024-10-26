@@ -35,6 +35,7 @@ func main() {
 	mux.HandleFunc("GET /{shop}", readShop)
 
 	mux.HandleFunc("POST /images", uploadImageHandler)
+	// TODO: Hide the view of the entire folder, serve just the images inside
 	mux.Handle("GET /images/", http.FileServer(http.Dir(".")))
 
 	fmt.Println("Starting the server...")
@@ -53,7 +54,7 @@ func createGoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newGoodID, err := prepareResponse(&w, struct {
+	newGoodID, err := prepareResponse(w, struct {
 		Id int64 `json:"id"`
 	}{Id: result})
 	if err != nil {
@@ -68,7 +69,7 @@ func createGoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(fmt.Sprintf("Created a good with ID: %d", newGoodID))
+	log.Println(fmt.Sprintf("Created a good with ID: %d", result))
 }
 
 func readAllGoodsHandler(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +80,7 @@ func readAllGoodsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	goodsJSON, err := prepareResponse(&w, goods)
+	goodsJSON, err := prepareResponse(w, goods)
 	if err != nil {
 		http.Error(w, "Could not marshal JSON of the goods", 500)
 		log.Println(err)
@@ -114,7 +115,7 @@ func readGoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	goodJSON, err := prepareResponse(&w, good)
+	goodJSON, err := prepareResponse(w, good)
 	if err != nil {
 		http.Error(w, "Could not marshal JSON of the sought good", 500)
 		log.Println(err)
@@ -156,7 +157,7 @@ func updateGoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedGoodJSON, err := prepareResponse(&w, updatedGood)
+	updatedGoodJSON, err := prepareResponse(w, updatedGood)
 	if err != nil {
 		http.Error(w, "Could not respond with the updated good", 500)
 		log.Println(err)
@@ -193,7 +194,7 @@ func deleteGoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deletedGoodJSON, err := prepareResponse(&w, deletedGood)
+	deletedGoodJSON, err := prepareResponse(w, deletedGood)
 	if err != nil {
 		http.Error(w, "Could not respond with the deleted good", 500)
 		log.Println(err)
@@ -278,10 +279,12 @@ func uploadImageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// sending the link to the file in response
-	newFileLink, err := prepareResponse(&w, struct {
+	newFileLink, err := prepareResponse(w, struct {
 		Link string `json:"link"`
+		// TODO: Substitute the domain name through the environment variable if it's defined
 	}{Link: fmt.Sprintf("http://localhost:1337/images/%s", handler.Filename)})
 	if err != nil {
+		// TODO: Ensure closing of the request
 		http.Error(w, "Could not respond with the link to the created file", 500)
 		log.Println(err)
 		return
@@ -296,14 +299,15 @@ func uploadImageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("Created a file with name: %s", handler.Filename))
 }
 
-func prepareResponse(w *http.ResponseWriter, data any) ([]byte, error) {
+// TODO: sendResponse function that encorporates more json things and sending the response
+func prepareResponse(w http.ResponseWriter, data any) ([]byte, error) {
 	jr, err := json.Marshal(data)
 	if err != nil {
 		return nil, err
 	}
 
-	(*w).Header().Set("Content-Type", "application/json")
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	return jr, nil
 }

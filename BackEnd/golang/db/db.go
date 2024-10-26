@@ -46,6 +46,7 @@ type RestaurantsDB struct {
 	*sql.DB
 }
 
+// TODO: Panic right here instead of returning the error - starting the database is critical
 func PrepareDB(dbfile string) (RestaurantsDB, error) {
 	os.Remove(dbfile) // for testing purposes
 	sqldb, err := sql.Open("sqlite3", dbfile)
