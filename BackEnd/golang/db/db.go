@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"os"
 	"strings"
 )
 
@@ -51,17 +50,16 @@ type RestaurantsDB struct {
 // proceed to use the server
 
 func PrepareDB(dbfile string) RestaurantsDB {
-	os.Remove(dbfile) // for testing purposes
 	sqldb, err := sql.Open("sqlite3", dbfile)
 	if err != nil {
 		panic(err)
 	}
 
-    if err := sqldb.Ping(); err != nil {
+	if err := sqldb.Ping(); err != nil {
 		panic(err)
 	}
 
-    if _, err := sqldb.Exec(schema); err != nil {
+	if _, err := sqldb.Exec(schema); err != nil {
 		panic(err)
 	}
 

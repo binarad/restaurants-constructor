@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -19,9 +20,18 @@ import (
 
 const dbName = "./foo.db"
 
+var (
+	testing    = flag.Bool("t", false, "launch for testing purposes")
+	domainName = flag.String("d", "localhost", "specifies the domain name (or hostname) by which the server refers to itself")
+)
+
 var database db.RestaurantsDB
 
 func main() {
+	flag.Parse()
+	if *testing {
+		os.Remove(dbName) // for testing purposes
+	}
 	database = db.PrepareDB(dbName)
 	defer database.Close()
 
@@ -281,8 +291,7 @@ func uploadImageHandler(w http.ResponseWriter, r *http.Request) {
 	// sending the link to the file in response
 	newFileLink, err := prepareResponse(w, struct {
 		Link string `json:"link"`
-		// TODO: Substitute the domain name through the environment variable if it's defined
-	}{Link: fmt.Sprintf("http://localhost:1337/images/%s", handler.Filename)})
+	}{Link: fmt.Sprintf("http://%s:1337/images/%s", *domainName, handler.Filename)})
 	if err != nil {
 		// TODO: Ensure closing of the request
 		http.Error(w, "Could not respond with the link to the created file", 500)
@@ -299,7 +308,7 @@ func uploadImageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("Created a file with name: %s", handler.Filename))
 }
 
-// TODO: sendResponse function that encorporates more json things and sending the response
+// TODO: sendResponse function that incorporates more json things and sending the response
 func prepareResponse(w http.ResponseWriter, data any) ([]byte, error) {
 	jr, err := json.Marshal(data)
 	if err != nil {
