@@ -22,7 +22,7 @@ const dbName = "./foo.db"
 var database db.RestaurantsDB
 
 func main() {
-	database, _ = db.PrepareDB(dbName) // for now this works
+	database = db.PrepareDB(dbName)
 	defer database.Close()
 
 	mux := http.NewServeMux()

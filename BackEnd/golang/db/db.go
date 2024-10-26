@@ -46,19 +46,26 @@ type RestaurantsDB struct {
 	*sql.DB
 }
 
-// TODO: Panic right here instead of returning the error - starting the database is critical
-func PrepareDB(dbfile string) (RestaurantsDB, error) {
+// unability to prepare the database is critical,
+// so one would rather panic and fail fast than
+// proceed to use the server
+
+func PrepareDB(dbfile string) RestaurantsDB {
 	os.Remove(dbfile) // for testing purposes
 	sqldb, err := sql.Open("sqlite3", dbfile)
 	if err != nil {
-		return RestaurantsDB{}, err
+		panic(err)
 	}
 
-	if _, err := sqldb.Exec(schema); err != nil {
-		return RestaurantsDB{}, err
+    if err := sqldb.Ping(); err != nil {
+		panic(err)
 	}
 
-	return RestaurantsDB{sqldb}, nil
+    if _, err := sqldb.Exec(schema); err != nil {
+		panic(err)
+	}
+
+	return RestaurantsDB{sqldb}
 }
 
 func (db *RestaurantsDB) CreateGood(good Good) (int64, error) {
