@@ -2,8 +2,9 @@ import { CSSProperties, useState } from 'react'
 import AddedRestaurant from './components/AddedRestaurant'
 import Button from '@mui/material/Button'
 import { DeleteForever } from '@mui/icons-material'
-import { AddedRestaurantType } from '../data'
+import { AddedRestaurantType, fetchedRestaurantsType } from '../data'
 import { Link } from 'react-router-dom'
+import useFetch from '../hooks/useFetch'
 
 const AdminPanelStlyes: CSSProperties = {
 	width: '1200px',
@@ -15,6 +16,10 @@ const AdminPanelStlyes: CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexDirection: 'column',
+	overflow: 'scroll',
+	overflowX: 'hidden',
+	scrollbarWidth: 'thin',
+	scrollBehavior: 'smooth',
 }
 
 export default function Admin(props: AddedRestaurantType) {
@@ -22,25 +27,32 @@ export default function Admin(props: AddedRestaurantType) {
 	const [title, setTitle] = useState<string>('')
 	const [description, setDescription] = useState<string>('')
 	const [imgUrl, setImgUrl] = useState<string>('')
+	const [data, setData] = useState<fetchedRestaurantsType | null>(null)
 
-	// const fetchData = async () => {
-	// 	const data = await fetch('http://localhost:1337/goods/read{id}')
-	// 	const jsonData = await data.json()
-	// 	console.log(jsonData)
-	// 	setTitle(jsonData[2].name)
-	// 	setDescription(jsonData[2].description)
-	// 	setImgUrl(jsonData[2].imgUrl)
+	const fetchedRestaurants: fetchedRestaurantsType | null =
+		useFetch<fetchedRestaurantsType | null>('http://localhost:1337/goods')
+
+	console.log(fetchedRestaurants)
+	// const fetchRestaurants = async () => {
+	// 	const resp = await fetch('http://localhost:1337/goods')
+	// 	const respJson = await resp.json()
+	// 	console.log(respJson)
+	// 	setData(respJson)
 	// }
-	// fetchData()
+
+	// fetchRestaurants()
 	return (
 		<div className='flex justify-start items-center h-full flex-col p-5'>
 			<h3 className='text-3xl font-bold m-3'>Admin Panel</h3>
 			<div style={AdminPanelStlyes}>
-				<AddedRestaurant
-					title={title}
-					description={description}
-					imgUrl={imgUrl}
-				/>
+				{fetchedRestaurants?.map((restaurant: any) => (
+					<AddedRestaurant
+						key={restaurant.id}
+						title={restaurant.name}
+						description={restaurant.description}
+						imgUrl={restaurant.imgUrl}
+					/>
+				))}
 				<div
 					id='buttons'
 					className='flex w-full mt-auto  mb-1 mr-1 items-center justify-end'

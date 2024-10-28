@@ -5,10 +5,17 @@ export type AddedRestaurantType = {
 }
 
 export type AddRestaurantType = {
-	title: string
+	title: string | null
 	setTitle: (name: React.SetStateAction<string | null>) => void
-	description: string
+	description: string | null
 	setDescription: (desc: React.SetStateAction<string | null>) => void
 	imgUrl: string
 	setImgUrl: (imgUrl: React.SetStateAction<string | null>) => void
 }
+
+export type fetchedRestaurantsType = {
+	id: number
+	name: string
+	description: string
+	imgUrl: string
+}[]
