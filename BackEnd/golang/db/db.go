@@ -148,3 +148,86 @@ func (db *RestaurantsDB) DeleteGood(id int64) (Good, error) {
 	}
 	return good, nil
 }
+
+func (db *RestaurantsDB) CreateShop(shop Shop) (int64, error) {
+	res, err := db.Exec(`
+insert into Shops(
+    name, description, imgUrl
+) values (
+    ?, ?, ?
+)
+`, shop.Name, shop.Description, shop.ImgURL)
+
+	if err != nil {
+		return 0, err
+	}
+	return res.LastInsertId()
+}
+
+func (db *RestaurantsDB) ReadShop(id int64) (Shop, error) {
+	row := db.QueryRow(`select * from Shops where id = ?`, id)
+	var shop Shop
+	err := row.Scan(&shop.Id, &shop.Name, &shop.Description, &shop.ImgURL)
+	if err != nil {
+		return Shop{}, err
+	}
+	return shop, nil
+}
+
+func (db *RestaurantsDB) ReadAllShops() ([]Shop, error) {
+	rows, err := db.Query(`select * from Shops`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var result = make([]Shop, 0)
+	for rows.Next() {
+		var curr Shop
+		err = rows.Scan(&curr.Id, &curr.Name, &curr.Description, &curr.ImgURL)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, curr)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (db *RestaurantsDB) UpdateShop(id int64, values map[string]string) (Shop, error) {
+	query := `update Shops set `
+	cols := [5]string{"name", "description", "imgUrl"}
+	parts := make([]string, 0, 3)
+	args := make([]any, 0, 3)
+
+	for _, col := range cols {
+		if value, ok := values[col]; ok {
+			parts = append(parts, col+` = ?`)
+			args = append(args, value)
+		}
+	}
+
+	query += strings.Join(parts, ",") + ` where id = ? returning *`
+	args = append(args, id)
+	row := db.QueryRow(query, args...)
+
+	var updatedShop Shop
+	err := row.Scan(&updatedShop.Id, &updatedShop.Name, &updatedShop.Description, &updatedShop.ImgURL)
+	if err != nil {
+		return Shop{}, err
+	}
+	return updatedShop, nil
+}
+
+func (db *RestaurantsDB) DeleteShop(id int64) (Shop, error) {
+	row := db.QueryRow(`delete from Shops where id = ? returning *`, id)
+	var shop Shop
+	err := row.Scan(&shop.Id, &shop.Name, &shop.Description, &shop.ImgURL)
+	if err != nil {
+		return Shop{}, err
+	}
+	return shop, nil
+}

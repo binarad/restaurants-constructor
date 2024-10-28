@@ -36,17 +36,23 @@ func main() {
 	defer database.Close()
 
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("POST /goods", createGoodHandler)
 	mux.HandleFunc("GET /goods", readAllGoodsHandler)
 	mux.HandleFunc("GET /goods/{id}", readGoodHandler)
 	mux.HandleFunc("PATCH /goods/{id}", updateGoodHandler)
 	mux.HandleFunc("DELETE /goods/{id}", deleteGoodHandler)
 
-	mux.HandleFunc("GET /{shop}", readShop)
-
 	mux.HandleFunc("POST /images", uploadImageHandler)
 	// TODO: Hide the view of the entire folder, serve just the images inside
 	mux.Handle("GET /images/", http.FileServer(http.Dir(".")))
+
+	mux.HandleFunc("POST /shops", createShopHandler)
+	mux.HandleFunc("GET /shops", readAllShopsHandler)
+	mux.HandleFunc("GET /shops/{id}", readShopHandler)
+	mux.HandleFunc("PATCH /shops/{id}", updateShopHandler)
+	mux.HandleFunc("DELETE /shops/{id}", deleteShopHandler)
+	mux.HandleFunc("GET /{shop}", readShop)
 
 	fmt.Println("Starting the server...")
 	log.Fatal(http.ListenAndServe(":1337", mux))
@@ -185,12 +191,6 @@ func deleteGoodHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("Deleted a good with ID: %d", goodIDint))
 }
 
-func readShop(w http.ResponseWriter, r *http.Request) {
-	shopSymbol := r.PathValue("shop")
-	log.Println(shopSymbol)
-	// if it's a valid id for shop or name of the shop, proceed accordingly
-}
-
 func uploadImageHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(10485760) // 10 MB
 	if err != nil {
@@ -266,6 +266,145 @@ func uploadImageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println(fmt.Sprintf("Created a file with name: %s", handler.Filename))
+}
+
+func createShopHandler(w http.ResponseWriter, r *http.Request) {
+	var newShop db.Shop
+	json.NewDecoder(r.Body).Decode(&newShop)
+	log.Println(newShop)
+
+	result, err := database.CreateShop(newShop)
+	if err != nil {
+		http.Error(w, "Could not create shop", 500)
+		log.Println(err)
+		return
+	}
+
+	err = sendResponse(w, struct {
+		Id int64 `json:"id"`
+	}{Id: result}, http.StatusCreated)
+	if err != nil {
+		http.Error(w, "Could not respond with the new shop ID", 500)
+		return
+	}
+
+	log.Println(fmt.Sprintf("Created a shop with ID: %d", result))
+}
+
+func readAllShopsHandler(w http.ResponseWriter, r *http.Request) {
+	shops, err := database.ReadAllShops()
+	if err != nil {
+		http.Error(w, "Could not list all shops", 500)
+		log.Println(err)
+		return
+	}
+
+	err = sendResponse(w, shops, http.StatusOK)
+	if err != nil {
+		http.Error(w, "Could not respond with the shops", 500)
+		return
+	}
+
+	log.Println("Listed all shops")
+}
+
+func readShopHandler(w http.ResponseWriter, r *http.Request) {
+	var shop db.Shop
+	var err error
+
+	shopID := r.PathValue("id")
+	shopIDint, err := strconv.ParseInt(shopID, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid shop ID", 400)
+		log.Println(err)
+		return
+	}
+
+	shop, err = database.ReadShop(shopIDint)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Could not find a shop with ID: %d", shopIDint), 404)
+		log.Println(err)
+		return
+	}
+
+	err = sendResponse(w, shop, http.StatusOK)
+	if err != nil {
+		http.Error(w, "Could not respond with the sought shop", 500)
+		return
+	}
+
+	log.Println(fmt.Sprintf("Found and listed a shop with ID: %d", shopIDint))
+}
+
+func updateShopHandler(w http.ResponseWriter, r *http.Request) {
+	var updateValues = map[string]string{}
+	var updatedShop db.Shop
+	json.NewDecoder(r.Body).Decode(&updateValues)
+	log.Println(updateValues)
+
+	shopID := r.PathValue("id")
+	if shopID == "" {
+		http.Error(w, "You need to provide an ID of some shop", 400)
+		return
+	}
+
+	shopIDint, err := strconv.ParseInt(shopID, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid shop ID", 400)
+		log.Println(err)
+		return
+	}
+
+	updatedShop, err = database.UpdateShop(shopIDint, updateValues)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Could not find a shop with ID: %d", shopIDint), 404)
+		log.Println(err)
+		return
+	}
+
+	err = sendResponse(w, updatedShop, http.StatusOK)
+	if err != nil {
+		http.Error(w, "Could not respond with the updated shop", 500)
+		return
+	}
+
+	log.Println(fmt.Sprintf("Patched a shop with ID: %d", shopIDint))
+}
+
+func deleteShopHandler(w http.ResponseWriter, r *http.Request) {
+	shopID := r.PathValue("id")
+	if shopID == "" {
+		http.Error(w, "You need to provide an ID of some shop", 400)
+		return
+	}
+
+	shopIDint, err := strconv.ParseInt(shopID, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid shop ID", 400)
+		log.Println(err)
+		return
+	}
+
+	deletedShop, err := database.DeleteShop(shopIDint)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Could not find a shop with ID: %d", shopIDint), 404)
+		log.Println(err)
+		return
+	}
+
+	err = sendResponse(w, deletedShop, http.StatusOK)
+	if err != nil {
+		http.Error(w, "Could not respond with the deleted shop", 500)
+		return
+	}
+
+	log.Println(fmt.Sprintf("Deleted a shop with ID: %d", shopIDint))
+}
+
+func readShop(w http.ResponseWriter, r *http.Request) {
+	shopSymbol := r.PathValue("shop")
+	log.Println(shopSymbol)
+	// if it's a valid id for shop or name of the shop, proceed accordingly
 }
 
 func sendResponse(w http.ResponseWriter, data any, status int) error {
