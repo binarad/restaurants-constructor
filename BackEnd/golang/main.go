@@ -64,18 +64,11 @@ func createGoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newGoodID, err := prepareResponse(w, struct {
+	err = sendResponse(w, struct {
 		Id int64 `json:"id"`
-	}{Id: result})
+	}{Id: result}, http.StatusCreated)
 	if err != nil {
 		http.Error(w, "Could not respond with the new good ID", 500)
-		log.Println(err)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	if _, err = w.Write(newGoodID); err != nil {
-		log.Println(err)
 		return
 	}
 
@@ -90,16 +83,9 @@ func readAllGoodsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	goodsJSON, err := prepareResponse(w, goods)
+	err = sendResponse(w, goods, http.StatusOK)
 	if err != nil {
-		http.Error(w, "Could not marshal JSON of the goods", 500)
-		log.Println(err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	if _, err = w.Write(goodsJSON); err != nil {
-		log.Println(err)
+		http.Error(w, "Could not respond with the goods", 500)
 		return
 	}
 
@@ -125,16 +111,9 @@ func readGoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	goodJSON, err := prepareResponse(w, good)
+	err = sendResponse(w, good, http.StatusOK)
 	if err != nil {
-		http.Error(w, "Could not marshal JSON of the sought good", 500)
-		log.Println(err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	if _, err = w.Write(goodJSON); err != nil {
-		log.Println(err)
+		http.Error(w, "Could not respond with the sought good", 500)
 		return
 	}
 
@@ -167,16 +146,9 @@ func updateGoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedGoodJSON, err := prepareResponse(w, updatedGood)
+	err = sendResponse(w, updatedGood, http.StatusOK)
 	if err != nil {
 		http.Error(w, "Could not respond with the updated good", 500)
-		log.Println(err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	if _, err = w.Write(updatedGoodJSON); err != nil {
-		log.Println(err)
 		return
 	}
 
@@ -204,16 +176,9 @@ func deleteGoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deletedGoodJSON, err := prepareResponse(w, deletedGood)
+	err = sendResponse(w, deletedGood, http.StatusOK)
 	if err != nil {
 		http.Error(w, "Could not respond with the deleted good", 500)
-		log.Println(err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	if _, err = w.Write(deletedGoodJSON); err != nil {
-		log.Println(err)
 		return
 	}
 
@@ -289,34 +254,35 @@ func uploadImageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// sending the link to the file in response
-	newFileLink, err := prepareResponse(w, struct {
+	err = sendResponse(w, struct {
 		Link string `json:"link"`
-	}{Link: fmt.Sprintf("http://%s:1337/images/%s", *domainName, handler.Filename)})
+	}{
+		Link: fmt.Sprintf("http://%s:1337/images/%s", *domainName, handler.Filename),
+	}, http.StatusCreated)
 	if err != nil {
 		// TODO: Ensure closing of the request
 		http.Error(w, "Could not respond with the link to the created file", 500)
-		log.Println(err)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	if _, err = w.Write(newFileLink); err != nil {
-		log.Println(err)
 		return
 	}
 
 	log.Println(fmt.Sprintf("Created a file with name: %s", handler.Filename))
 }
 
-// TODO: sendResponse function that incorporates more json things and sending the response
-func prepareResponse(w http.ResponseWriter, data any) ([]byte, error) {
+func sendResponse(w http.ResponseWriter, data any, status int) error {
 	jr, err := json.Marshal(data)
 	if err != nil {
-		return nil, err
+		log.Println(err)
+		return err
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(status)
 
-	return jr, nil
+	if _, err = w.Write(jr); err != nil {
+		// at this point I couldn't send anything to the client
+		log.Println(err)
+		return err
+	}
+	return nil
 }
