@@ -199,7 +199,7 @@ func (db *RestaurantsDB) ReadAllShops() ([]Shop, error) {
 
 func (db *RestaurantsDB) UpdateShop(id int64, values map[string]string) (Shop, error) {
 	query := `update Shops set `
-	cols := [5]string{"name", "description", "imgUrl"}
+	cols := [3]string{"name", "description", "imgUrl"}
 	parts := make([]string, 0, 3)
 	args := make([]any, 0, 3)
 

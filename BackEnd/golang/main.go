@@ -234,8 +234,7 @@ func uploadImageHandler(w http.ResponseWriter, r *http.Request) {
 	err = os.MkdirAll("images", os.ModePerm)
 	if err != nil {
 		http.Error(w, "Could not save the file on the server", 500)
-		log.Println(err)
-		return
+		panic(err)
 	}
 
 	file, err := os.Create(fmt.Sprintf("images/%s", handler.Filename))
@@ -261,11 +260,11 @@ func uploadImageHandler(w http.ResponseWriter, r *http.Request) {
 	}, http.StatusCreated)
 	if err != nil {
 		// TODO: Ensure closing of the request
-		http.Error(w, "Could not respond with the link to the created file", 500)
+		http.Error(w, "Could not respond with the link to the uploaded image", 500)
 		return
 	}
 
-	log.Println(fmt.Sprintf("Created a file with name: %s", handler.Filename))
+	log.Println(fmt.Sprintf("Created an image with name: %s", handler.Filename))
 }
 
 func createShopHandler(w http.ResponseWriter, r *http.Request) {
