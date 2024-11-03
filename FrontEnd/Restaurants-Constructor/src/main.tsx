@@ -6,12 +6,16 @@ import './index.css'
 import Admin from './admin/Admin.tsx'
 import AddRestaurants from './Pages/AddRestaurants.tsx'
 import Error404Page from './Pages/Error404Page.tsx'
+import { fetchedRestaurantsType } from './data.ts'
 
 const Main = () => {
-	const [title, setTitle] = useState<string | null>(null)
-	const [description, setDescription] = useState<string | null>(null)
-	const [imgUrl, setImgUrl] = useState<string | null>(null)
+	//const [title, setTitle] = useState<string | null>(null)
+	//const [description, setDescription] = useState<string | null>(null)
+	//const [imgUrl, setImgUrl] = useState<string | null>(null)
 
+	const [restaurantData, setRestaurantData] = useState<
+		fetchedRestaurantsType[] | null
+	>(null)
 	const router = createBrowserRouter([
 		{
 			path: '/',
@@ -21,19 +25,18 @@ const Main = () => {
 		{
 			path: '/admin',
 			element: (
-				<Admin title={title!} description={description!} imgUrl={imgUrl!} />
+				<Admin
+					restaurantsData={restaurantData!}
+					setRestaurantsData={setRestaurantData}
+				/>
 			),
 		},
 		{
 			path: '/admin/add_restaurants',
 			element: (
 				<AddRestaurants
-					title={title!}
-					setTitle={setTitle!}
-					description={description!}
-					setDescription={setDescription}
-					imgUrl={imgUrl!}
-					setImgUrl={setImgUrl!}
+					setRestaurantsData={setRestaurantData}
+					restaurantsData={[]}
 				/>
 			),
 		},

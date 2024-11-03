@@ -2,6 +2,8 @@ export type AddedRestaurantType = {
 	title: string
 	description: string
 	imgUrl: string
+	isChecked: boolean
+	setIsChecked: (isChecked: React.SetStateAction<boolean>) => void
 }
 
 export type AddRestaurantType = {
@@ -18,4 +20,11 @@ export type fetchedRestaurantsType = {
 	name: string
 	description: string
 	imgUrl: string
-}[]
+}
+
+export type DataType = {
+	restaurantsData: fetchedRestaurantsType[]
+	setRestaurantsData: React.Dispatch<
+		React.SetStateAction<fetchedRestaurantsType[] | null>
+	>
+}
