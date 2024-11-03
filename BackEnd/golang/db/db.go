@@ -116,6 +116,7 @@ func (db *RestaurantsDB) ReadAllGoods() ([]Good, error) {
 
 func (db *RestaurantsDB) UpdateGood(id int64, values map[string]string) (Good, error) {
 	query := `update Goods set `
+	// TODO: Small function for forming query string?
 	cols := [5]string{"name", "description", "price", "imgUrl", "shopId"}
 	parts := make([]string, 0, 5)
 	args := make([]any, 0, 5)

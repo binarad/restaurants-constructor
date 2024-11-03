@@ -42,6 +42,7 @@ func main() {
 	mux.HandleFunc("GET /goods/{id}", readGoodHandler)
 	mux.HandleFunc("PATCH /goods/{id}", updateGoodHandler)
 	mux.HandleFunc("DELETE /goods/{id}", deleteGoodHandler)
+	mux.HandleFunc("OPTIONS /goods/{id}", optionsHandler)
 
 	mux.HandleFunc("POST /images", uploadImageHandler)
 	// TODO: Hide the view of the entire folder, serve just the images inside
@@ -53,6 +54,7 @@ func main() {
 	mux.HandleFunc("PATCH /shops/{id}", updateShopHandler)
 	mux.HandleFunc("DELETE /shops/{id}", deleteShopHandler)
 	mux.HandleFunc("GET /{shop}", readShop)
+	mux.HandleFunc("OPTIONS /shops/{id}", optionsHandler)
 
 	fmt.Println("Starting the server...")
 	log.Fatal(http.ListenAndServe(":1337", mux))
@@ -70,6 +72,7 @@ func createGoodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Better naming? sendResponseJSON?
 	err = sendResponse(w, struct {
 		Id int64 `json:"id"`
 	}{Id: result}, http.StatusCreated)
@@ -79,6 +82,13 @@ func createGoodHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println(fmt.Sprintf("Created a good with ID: %d", result))
+}
+
+func optionsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	w.WriteHeader(http.StatusOK)
 }
 
 func readAllGoodsHandler(w http.ResponseWriter, r *http.Request) {
