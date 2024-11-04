@@ -37,7 +37,7 @@ export default function Admin(props: DataType) {
 	}, [])
 
 	async function deleteRestaurant(restaurantId: number) {
-		const resp = await fetch(`http://localhost:1337/shops${restaurantId}`, {
+		const resp = await fetch(`http://localhost:1337/shops/${restaurantId}`, {
 			method: 'DELETE',
 		})
 
@@ -45,15 +45,19 @@ export default function Admin(props: DataType) {
 		console.log(respJson)
 	}
 
-	const deleteAllRestaurants = () => {
-		restaurantsData!.forEach(async restaurant => {
-			const resp = await fetch(`http://localhost:1337/shops/${restaurant.id}`, {
-				method: 'DELETE',
-			})
-			const respJson = await resp.json()
-			console.log(respJson)
-			setRestaurantsData(respJson)
-		})
+	const deleteAllRestaurants = async () => {
+		try {
+			await Promise.all(
+				restaurantsData.map(async restaurant => {
+					await fetch(`http://localhost:1337/shops/${restaurant.id}`, {
+						method: 'DELETE',
+					})
+				})
+			)
+			setRestaurantsData([])
+		} catch (error) {
+			console.error('Error deleting all restaurants: ', error)
+		}
 	}
 
 	return (
@@ -73,7 +77,13 @@ export default function Admin(props: DataType) {
 							/>
 						))
 					) : (
-						<h1 className='self-center items-center w-[500px] h-[505px] flex justify-center text-3xl font-bold'>
+						<h1
+							className='items-center w-full h-full flex justify-center text-3xl font-bold'
+							style={{
+								justifySelf: 'center',
+								placeSelf: 'center',
+							}}
+						>
 							No restaurants found
 						</h1>
 					)

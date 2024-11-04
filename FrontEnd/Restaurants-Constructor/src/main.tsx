@@ -14,8 +14,9 @@ const Main = () => {
 	//const [imgUrl, setImgUrl] = useState<string | null>(null)
 
 	const [restaurantData, setRestaurantData] = useState<
-		fetchedRestaurantsType[] | null
-	>(null)
+		fetchedRestaurantsType[]
+	>([])
+
 	const router = createBrowserRouter([
 		{
 			path: '/',
@@ -36,7 +37,7 @@ const Main = () => {
 			element: (
 				<AddRestaurants
 					setRestaurantsData={setRestaurantData}
-					restaurantsData={[]}
+					restaurantsData={restaurantData}
 				/>
 			),
 		},

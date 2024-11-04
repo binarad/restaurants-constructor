@@ -7,15 +7,15 @@ import { DataType } from '../data'
 export default function AddRestaurants(props: DataType) {
 	const setRestaurantsData = props.setRestaurantsData
 
-	const [title, setTitle] = useState<string | null>(null)
-	const [description, setDescription] = useState<string | null>(null)
-	const [imgUrl, setImgUrl] = useState<string | null>(null)
+	const [title, setTitle] = useState<string>('')
+	const [description, setDescription] = useState<string>('')
+	// const [imgUrl, setImgUrl] = useState<string | null>(null)
 
 	const [previewImg, setPreviewImg] = useState<string>('')
 	const [selectedFile, setSelectedFile] = useState<File | null>(null)
 	const allowedFileTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'] // Allowed file types for restaurant icon
 
-	// console.log(imgUrl)
+	//upload img to server
 	const uploadImg = async (file: File): Promise<string | null> => {
 		try {
 			const imgForm = new FormData()
@@ -41,8 +41,9 @@ export default function AddRestaurants(props: DataType) {
 			console.error('Something unexpected happened: ', error)
 			return null
 		}
-		// alert(JSON.stringify(data))
 	}
+
+	// Add restaurant to db
 	const addRestaurant = async () => {
 		try {
 			if (selectedFile) {
@@ -68,7 +69,7 @@ export default function AddRestaurants(props: DataType) {
 				})
 
 				const newRestaurant = await goodsResponse.json()
-				setRestaurantsData(newRestaurant)
+				setRestaurantsData(prevData => [...prevData, newRestaurant])
 			} else {
 				console.error('No image file selected')
 			}

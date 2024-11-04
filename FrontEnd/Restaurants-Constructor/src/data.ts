@@ -25,6 +25,6 @@ export type fetchedRestaurantsType = {
 export type DataType = {
 	restaurantsData: fetchedRestaurantsType[]
 	setRestaurantsData: React.Dispatch<
-		React.SetStateAction<fetchedRestaurantsType[] | null>
+		React.SetStateAction<fetchedRestaurantsType[]>
 	>
 }
