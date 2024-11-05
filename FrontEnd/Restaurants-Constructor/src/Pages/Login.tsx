@@ -1,5 +1,6 @@
 import { Button, TextField } from '@mui/material'
 import { CSSProperties, useState } from 'react'
+import { useNavigate } from 'react-router'
 
 export default function Login() {
 	const LoginStyles: CSSProperties = {
@@ -21,12 +22,16 @@ export default function Login() {
 
 	const [login, setLogin] = useState<string>('')
 	const [password, setPassword] = useState<string>('')
-	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
+	const [isValid, setIsValid] = useState<boolean>(false)
+
+	const navigate = useNavigate()
 
 	const buttonHandler = () => {
 		if (login === correctlogin && password === correctPassword) {
-			setIsLoggedIn(true)
+			setIsValid(true)
 		}
+
+		if (isValid) navigate('/admin')
 	}
 
 	return (
@@ -58,8 +63,6 @@ export default function Login() {
 				>
 					LOGIN
 				</Button>
-
-				{isLoggedIn ? <div>Hello nigga</div> : <div></div>}
 			</div>
 		</div>
 	)
