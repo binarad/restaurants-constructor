@@ -125,7 +125,7 @@ export default function AddRestaurants(props: DataType) {
 					src={previewImg}
 					className='w-[300px] h-[300px] rounded-lg object-cover border-none'
 				/>
-				<Button variant='contained'>
+				<Button variant='contained' sx={{ fontSize: '18px' }}>
 					<label htmlFor='restaurant-icon-input'>Click to upload photo</label>
 				</Button>
 				<input
@@ -140,7 +140,7 @@ export default function AddRestaurants(props: DataType) {
 					<Link to='/admin'>
 						<Button
 							variant='contained'
-							sx={{ width: '100px' }}
+							sx={{ width: '100px', fontSize: '18px' }}
 							onClick={() => {
 								addRestaurant()
 								PrintRestaurants()
@@ -150,7 +150,10 @@ export default function AddRestaurants(props: DataType) {
 						</Button>
 					</Link>
 					<Link to='/admin'>
-						<Button variant='outlined' sx={{ width: '100px' }}>
+						<Button
+							variant='outlined'
+							sx={{ width: '100px', fontSize: '18px' }}
+						>
 							Cancel
 						</Button>
 					</Link>
