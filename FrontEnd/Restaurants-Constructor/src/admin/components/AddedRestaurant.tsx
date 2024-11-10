@@ -1,7 +1,16 @@
-import { AddedRestaurantType } from '../../data'
 import { Checkbox } from '@mui/material'
+
+type AddedRestaurantType = {
+	id: number
+	title: string
+	description: string
+	imgUrl: string
+	checked: boolean
+	onChange: (id: number, checked: boolean) => void
+}
+
 export default function AddedRestaurant(props: AddedRestaurantType) {
-	const { title, description, imgUrl, isChecked, setIsChecked } = props
+	const { id, title, description, imgUrl, checked, onChange } = props
 	return (
 		<div
 			className='flex w-[500px] h-[150px] bg-gray-400 m-2 p-2 rounded-md justify-between'
@@ -14,8 +23,8 @@ export default function AddedRestaurant(props: AddedRestaurantType) {
 			<img src={imgUrl} className='w-[150px] rounded-md' />
 			{/* <FormControlLabel control={<Checkbox />} /> */}
 			<Checkbox
-				checked={isChecked}
-				onChange={e => setIsChecked(e.target.checked)}
+				checked={checked}
+				onChange={e => onChange(id, e.target.checked)}
 				sx={{
 					height: '50px',
 					alignSelf: 'center',

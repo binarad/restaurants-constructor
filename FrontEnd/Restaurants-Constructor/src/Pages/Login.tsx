@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router'
 
 export default function Login() {
 	const LoginStyles: CSSProperties = {
-		width: '1000px',
+		width: '400px',
 		height: '650px',
-		background: 'lightgray',
-		padding: '15px',
+		background: '#00000000',
+		padding: '50px',
 		display: 'flex',
 		borderRadius: '20px',
 		border: '1px solid gray',
@@ -17,8 +17,8 @@ export default function Login() {
 		gap: '10px',
 	}
 
-	const correctlogin = 'ILOVEPIVO'
-	const correctPassword = 'NIGGA'
+	//const correctlogin = 'ILOVEPIVO'
+	//const correctPassword = 'NIGGA'
 
 	const [login, setLogin] = useState<string>('')
 	const [password, setPassword] = useState<string>('')
@@ -26,13 +26,13 @@ export default function Login() {
 
 	const navigate = useNavigate()
 
-	const buttonHandler = () => {
-		if (login === correctlogin && password === correctPassword) {
-			setIsValid(true)
-		}
-
-		if (isValid) navigate('/admin')
-	}
+	//	const buttonHandler = () => {
+	//		if (login === correctlogin && password === correctPassword) {
+	//			setIsValid(true)
+	//		}
+	//
+	//		if (isValid) navigate('/admin')
+	//	}
 
 	return (
 		<div className='flex flex-col w-full h-full justify-center items-center'>
@@ -40,26 +40,33 @@ export default function Login() {
 				<h1 className='text-5xl font-semibold text-center relative top-[-150px]'>
 					Login
 				</h1>
+
 				<TextField
-					variant='outlined'
+					variant='standard'
 					label='Login'
-					className='w-[300px]'
+					className='w-full'
 					value={login}
 					onChange={e => setLogin(e.target.value)}
 				/>
+
 				<TextField
-					variant='outlined'
+					variant='standard'
 					label='Password'
 					type='password'
-					className='w-[300px]'
+					className='w-full '
 					value={password}
 					onChange={e => setPassword(e.target.value)}
 				/>
+
 				<Button
 					variant='contained'
-					className='w-[300px] h-[50px] text-3xl '
-					sx={{ fontSize: '18px', margin: '10px' }}
-					onClick={buttonHandler}
+					className=' text-3xl '
+					sx={{
+						fontSize: '18px',
+						margin: '10px',
+						height: '40px',
+						width: '200px',
+					}}
 				>
 					LOGIN
 				</Button>

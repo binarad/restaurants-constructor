@@ -49,6 +49,7 @@ func main() {
 	mux.Handle("GET /images/", http.FileServer(http.Dir(".")))
 
 	mux.HandleFunc("POST /shops", createShopHandler)
+	mux.HandleFunc("OPTIONS /shops", optionsHandler)
 	mux.HandleFunc("GET /shops", readAllShopsHandler)
 	mux.HandleFunc("GET /shops/{id}", readShopHandler)
 	mux.HandleFunc("PATCH /shops/{id}", updateShopHandler)

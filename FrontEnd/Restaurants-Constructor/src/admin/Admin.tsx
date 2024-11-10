@@ -2,14 +2,13 @@ import { CSSProperties, useEffect, useState } from 'react'
 import AddedRestaurant from './components/AddedRestaurant'
 import Button from '@mui/material/Button'
 import { DeleteForever } from '@mui/icons-material'
-//import { AddedRestaurantType, fetchedRestaurantsType } from "../data";
 import { Link } from 'react-router-dom'
-// import useFetch from '../hooks/useFetch'
-import { DataType } from '../data'
+import { DataType } from '../data.types'
 
 const AdminPanelStlyes: CSSProperties = {
 	width: '1200px',
 	height: '700px',
+	padding: '10px',
 	backgroundColor: '#E1E1E1',
 	border: '1px solid #999999',
 	borderRadius: '15px',
@@ -24,9 +23,12 @@ const AdminPanelStlyes: CSSProperties = {
 }
 
 export default function Admin(props: DataType) {
-	const [isChecked, setIsChecked] = useState<boolean>(false)
-
 	const { restaurantsData, setRestaurantsData } = props
+	const [checkedState, setCheckedState] = useState<{ [key: number]: boolean }>(
+		{}
+	)
+	console.log(checkedState)
+
 	useEffect(() => {
 		const fetchData = async () => {
 			const resp = await fetch('http://localhost:1337/shops')
@@ -36,6 +38,13 @@ export default function Admin(props: DataType) {
 		fetchData()
 	}, [])
 
+	const handleCheckboxChange = (id: number, checked: boolean) => {
+		setCheckedState(prevState => ({
+			...prevState,
+			[id]: checked,
+		}))
+	}
+
 	async function deleteRestaurant(restaurantId: number) {
 		const resp = await fetch(`http://localhost:1337/shops/${restaurantId}`, {
 			method: 'DELETE',
@@ -43,6 +52,17 @@ export default function Admin(props: DataType) {
 
 		const respJson = await resp.json()
 		console.log(respJson)
+	}
+
+	const handleDeleteSelectedRestaurants = async () => {
+		for (const [id, checked] of Object.entries(checkedState)) {
+			if (checked) await deleteRestaurant(Number(id))
+		}
+
+		setRestaurantsData(prevData =>
+			prevData.filter(restaurant => !checkedState[restaurant.id])
+		)
+		setCheckedState({})
 	}
 
 	const deleteAllRestaurants = async () => {
@@ -69,11 +89,12 @@ export default function Admin(props: DataType) {
 						restaurantsData.map((restaurant: any) => (
 							<AddedRestaurant
 								key={restaurant.id}
+								id={restaurant.id}
 								title={restaurant.name}
 								description={restaurant.description}
 								imgUrl={restaurant.imgUrl}
-								isChecked={isChecked}
-								setIsChecked={setIsChecked}
+								checked={checkedState[restaurant.id] || false}
+								onChange={(id, checked) => handleCheckboxChange(id, checked)}
 							/>
 						))
 					) : (
@@ -113,7 +134,7 @@ export default function Admin(props: DataType) {
 							fontSize: '18px',
 						}}
 						className='w-[170px] h-[45px] '
-						onClick={() => deleteRestaurant(1)}
+						onClick={() => handleDeleteSelectedRestaurants()}
 					>
 						<DeleteForever />
 						DELETE

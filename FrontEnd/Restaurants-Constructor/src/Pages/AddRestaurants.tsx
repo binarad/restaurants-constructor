@@ -1,19 +1,15 @@
 import { TextField, Button } from '@mui/material'
-// import { AddRestaurantType } from '../data'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { DataType } from '../data'
+import { DataType } from '../data.types'
 
 export default function AddRestaurants(props: DataType) {
 	const setRestaurantsData = props.setRestaurantsData
-
 	const [title, setTitle] = useState<string>('')
 	const [description, setDescription] = useState<string>('')
-	// const [imgUrl, setImgUrl] = useState<string | null>(null)
-
 	const [previewImg, setPreviewImg] = useState<string>('')
 	const [selectedFile, setSelectedFile] = useState<File | null>(null)
-	const allowedFileTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'] // Allowed file types for restaurant icon
+	const allowedFileTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'] // Allowed file types for restaurant image
 
 	//upload img to server
 	const uploadImg = async (file: File): Promise<string | null> => {
@@ -23,10 +19,6 @@ export default function AddRestaurants(props: DataType) {
 
 			const resp = await fetch('http://localhost:1337/images', {
 				method: 'POST',
-				// mode: 'no-cors',
-				// headers: {
-				// 	'Access-Control-Allow-Origin': '*',
-				// },
 				body: imgForm,
 			})
 
@@ -60,18 +52,22 @@ export default function AddRestaurants(props: DataType) {
 				}
 				const goodsResponse = await fetch('http://localhost:1337/shops', {
 					method: 'POST',
-					mode: 'no-cors',
-					headers: {
-						'Content-Type': 'application/json',
-						'Access-Control-Allow-Origin': '*',
-					},
 					body: JSON.stringify(RestaurantData),
 				})
 
-				const newRestaurant = await goodsResponse.json()
-				setRestaurantsData(prevData => [...prevData, newRestaurant])
+				const { id } = await goodsResponse.json()
+
+				setRestaurantsData(prevData => [
+					...prevData,
+					{
+						id: id,
+						name: title,
+						description: description,
+						imgUrl: imageLink,
+					},
+				])
 			} else {
-				console.error('No image file selected')
+				alert('No image file selected')
 			}
 		} catch (error) {
 			console.error(`Unexpected error while adding restaurant: ${error}`)
