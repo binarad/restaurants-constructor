@@ -17,8 +17,8 @@ export default function Login() {
 		gap: '10px',
 	}
 
-	//const correctlogin = 'ILOVEPIVO'
-	//const correctPassword = 'NIGGA'
+	const correctlogin = 'ILOVEPIVO'
+	const correctPassword = 'NIGGA'
 
 	const [login, setLogin] = useState<string>('')
 	const [password, setPassword] = useState<string>('')
@@ -26,13 +26,13 @@ export default function Login() {
 
 	const navigate = useNavigate()
 
-	//	const buttonHandler = () => {
-	//		if (login === correctlogin && password === correctPassword) {
-	//			setIsValid(true)
-	//		}
-	//
-	//		if (isValid) navigate('/admin')
-	//	}
+	const buttonHandler = () => {
+		if (login === correctlogin && password === correctPassword) {
+			setIsValid(true)
+		}
+
+		if (isValid) navigate('/admin')
+	}
 
 	return (
 		<div className='flex flex-col w-full h-full justify-center items-center'>
@@ -67,6 +67,7 @@ export default function Login() {
 						height: '40px',
 						width: '200px',
 					}}
+					onClick={buttonHandler}
 				>
 					LOGIN
 				</Button>
