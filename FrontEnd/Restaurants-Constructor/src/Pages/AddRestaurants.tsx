@@ -23,7 +23,7 @@ export default function AddRestaurants(props: DataType) {
 			})
 
 			if (!resp.ok) {
-				console.error('Failed to upload image.')
+				console.log('Failed to upload image.')
 				return null
 			}
 
@@ -89,7 +89,8 @@ export default function AddRestaurants(props: DataType) {
 	const PrintRestaurants = async () => {
 		const data = await fetch('http://localhost:1337/shops')
 		const jsonData = await data.json()
-		console.log(jsonData)
+		// console.log(jsonData)
+		return jsonData
 	}
 
 	return (

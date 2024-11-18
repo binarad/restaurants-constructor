@@ -27,7 +27,7 @@ export default function Admin(props: DataType) {
 	const [checkedState, setCheckedState] = useState<{ [key: number]: boolean }>(
 		{}
 	)
-	console.log(checkedState)
+	// console.log(checkedState)
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -51,7 +51,7 @@ export default function Admin(props: DataType) {
 		})
 
 		const respJson = await resp.json()
-		console.log(respJson)
+		// console.log(respJson)
 	}
 
 	const handleDeleteSelectedRestaurants = async () => {
