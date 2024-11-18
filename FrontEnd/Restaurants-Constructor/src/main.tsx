@@ -8,6 +8,7 @@ import AddRestaurants from './Pages/AddRestaurants.tsx'
 import Error404Page from './Pages/Error404Page.tsx'
 import { fetchedRestaurantsType } from './data.types.ts'
 import Login from './Pages/Login.tsx'
+import RestaurantPage from './Pages/RestaurantPage.tsx'
 
 const Main = () => {
 	//const [title, setTitle] = useState<string | null>(null)
@@ -32,6 +33,10 @@ const Main = () => {
 					setRestaurantsData={setRestaurantData}
 				/>
 			),
+		},
+		{
+			path: '/shops/:shopId',
+			element: <RestaurantPage />,
 		},
 		{
 			path: '/admin/add_restaurants',
