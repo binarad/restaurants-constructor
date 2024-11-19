@@ -37,25 +37,49 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /goods", createGoodHandler)
 	mux.HandleFunc("GET /goods", readAllGoodsHandler)
+	mux.HandleFunc("POST /goods", createGoodHandler)
+	mux.HandleFunc("OPTIONS /goods", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
+		w.WriteHeader(http.StatusOK)
+	})
+
 	mux.HandleFunc("GET /goods/{id}", readGoodHandler)
 	mux.HandleFunc("PATCH /goods/{id}", updateGoodHandler)
 	mux.HandleFunc("DELETE /goods/{id}", deleteGoodHandler)
-	mux.HandleFunc("OPTIONS /goods/{id}", optionsHandler)
+	mux.HandleFunc("OPTIONS /goods/{id}", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, PATCH, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
+		w.WriteHeader(http.StatusOK)
+	})
 
 	mux.HandleFunc("POST /images", uploadImageHandler)
 	// TODO: Hide the view of the entire folder, serve just the images inside
 	mux.Handle("GET /images/", http.FileServer(http.Dir(".")))
 
-	mux.HandleFunc("POST /shops", createShopHandler)
-	mux.HandleFunc("OPTIONS /shops", optionsHandler)
 	mux.HandleFunc("GET /shops", readAllShopsHandler)
+	mux.HandleFunc("POST /shops", createShopHandler)
+	mux.HandleFunc("OPTIONS /shops", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
+		w.WriteHeader(http.StatusOK)
+	})
+
 	mux.HandleFunc("GET /shops/{id}", readShopHandler)
 	mux.HandleFunc("PATCH /shops/{id}", updateShopHandler)
 	mux.HandleFunc("DELETE /shops/{id}", deleteShopHandler)
-	mux.HandleFunc("GET /{shop}", readShop)
-	mux.HandleFunc("OPTIONS /shops/{id}", optionsHandler)
+	mux.HandleFunc("OPTIONS /shops/{id}", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, PATCH, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
+		w.WriteHeader(http.StatusOK)
+	})
+
+	mux.HandleFunc("GET /{shop}", displayShopWebPage)
 
 	fmt.Println("Starting the server...")
 	log.Fatal(http.ListenAndServe(":1337", mux))
@@ -83,13 +107,6 @@ func createGoodHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println(fmt.Sprintf("Created a good with ID: %d", result))
-}
-
-func optionsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-	w.WriteHeader(http.StatusOK)
 }
 
 func readAllGoodsHandler(w http.ResponseWriter, r *http.Request) {
@@ -411,7 +428,7 @@ func deleteShopHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("Deleted a shop with ID: %d", shopIDint))
 }
 
-func readShop(w http.ResponseWriter, r *http.Request) {
+func displayShopWebPage(w http.ResponseWriter, r *http.Request) {
 	shopSymbol := r.PathValue("shop")
 	log.Println(shopSymbol)
 	// if it's a valid id for shop or name of the shop, proceed accordingly
