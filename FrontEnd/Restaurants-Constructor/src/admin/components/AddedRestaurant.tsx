@@ -1,5 +1,6 @@
 import { Checkbox } from '@mui/material'
 import { Link } from 'react-router-dom'
+
 type AddedRestaurantType = {
 	id: number
 	title: string

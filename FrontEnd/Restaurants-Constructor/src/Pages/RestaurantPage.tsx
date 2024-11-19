@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import { Add, Category } from '@mui/icons-material'
+import { Add } from '@mui/icons-material'
 import {
 	Button,
 	TextField,
@@ -9,6 +9,7 @@ import {
 	DialogContent,
 	DialogTitle,
 } from '@mui/material'
+import { Link } from 'react-router-dom'
 
 type ShopDataType = {
 	id: number
@@ -23,14 +24,21 @@ export default function RestaurantPage() {
 
 	const [open, setOpen] = useState<boolean>(false)
 	const [categoryName, setCategoryName] = useState<string>('')
+	const [categories, setCategories] = useState<string[]>([])
 	const handleOpen = () => setOpen(true)
-	const handleClose = () => setOpen(false)
+	const handleClose = () => {
+		setOpen(false)
+		setCategoryName('')
+	}
 	// console.log(shopId)
 
 	const handleCreateCategory = () => {
-		console.log('Created new category ', categoryName)
-		setCategoryName('')
-		setOpen(false)
+		if (categoryName.trim()) {
+			console.log('Created new category ', categoryName)
+			setCategories([...categories, categoryName])
+			setOpen(false)
+			setCategoryName('')
+		}
 	}
 
 	useEffect(() => {
@@ -53,12 +61,20 @@ export default function RestaurantPage() {
 				</div>
 			</div>
 			<button
-				className='flex w-[350px] h-[75px] items-center justify-center border-dashed border-black border-2 rounded-md text-lg mt-[120px] gap-1 font-semibold'
+				className='flex w-[350px] h-[75px] items-center justify-center border-dashed border-black border-2 rounded-3xl text-lg mt-[120px] gap-1 font-semibold'
 				onClick={handleOpen}
 			>
 				Create category <Add />
 			</button>
-
+			{categories.map(category => (
+				<Link
+					to={`shops/${shopId}/${category}`}
+					key={category}
+					className='w-[350px] h-[75px] border-2 border-black rounded-3xl flex items-center justify-center uppercase font-semibold text-lg'
+				>
+					{category}
+				</Link>
+			))}
 			<Dialog
 				open={open}
 				onClose={handleClose}
